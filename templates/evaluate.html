@@ -2,139 +2,193 @@
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baholash paneli</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-  
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 40px 20px;
-    background: #f4f6f8;
-    color: #333;
-    display: flex;
-    justify-content: center;
-  }
+    * {
+      box-sizing: border-box;
+    }
 
-  .container {
-    max-width: 850px;
-    width: 100%;
-  }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      background: #f4f6f8;
+      color: #333;
+      display: flex;
+      justify-content: center;
+    }
 
-  h2 { font-size: 26px; margin-bottom: 10px; }
+    .container {
+      max-width: 850px;
+      width: 100%;
+    }
 
-  .logout {
-    float: right;
-    color: #ff7f23;
-    text-decoration: none;
-    font-weight: bold;
-  }
+    h2 {
+      font-size: 26px;
+      margin-bottom: 10px;
+    }
 
-  form {
-    background: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.05);
-    margin-bottom: 40px;
-  }
+    .logout {
+      float: right;
+      color: #ff7f23;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-  label {
-    margin-top: 20px;
-    font-weight: 500;
-    display: block;
-    font-size: 15px;
-  }
+    form {
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 40px;
+    }
 
-  select, input[type=number], textarea {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    margin-top: 5px;
-    font-size: 15px;
-  }
+    label {
+      margin-top: 20px;
+      font-weight: 500;
+      display: block;
+      font-size: 15px;
+    }
 
-  .criteria-group {
-    margin-top: 20px;
-  }
+    select,
+    input[type=number],
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      font-size: 15px;
+    }
 
-  .criteria-item {
-    margin-bottom: 15px;
-  }
+    .criteria-group {
+      margin-top: 20px;
+    }
 
-  .criteria-item label {
-    font-weight: 500;
-    margin-bottom: 6px;
-    display: block;
-  }
+    .criteria-item {
+      margin-bottom: 15px;
+    }
 
-  .result-summary {
-    margin-top: 15px;
-    font-weight: bold;
-  }
+    .criteria-item label {
+      font-weight: 500;
+      margin-bottom: 6px;
+      display: block;
+    }
 
-  .evaluations {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
+    .result-summary {
+      margin-top: 15px;
+      font-weight: bold;
+    }
 
-  .evaluation-item {
-    border-bottom: 1px solid #eee;
-    padding: 15px 0;
-  }
+    .evaluations {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
 
-  .timer-box {
-    position: sticky;
-    top: 0;
-    z-index: 999;
-    background: #e7f1ff;
-    border-radius: 8px;
-    font-weight: bold;
-    color: #003366;
-    font-size: 18px;
-    padding: 10px;
-    margin-bottom: 20px;
-    display: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
+    .evaluation-item {
+      border-bottom: 1px solid #eee;
+      padding: 15px 0;
+    }
 
-  button[type="submit"] {
-    background: #ff7f23;
-    border: none;
-    color: #fff;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 15px;
-    margin-top: 20px;
-    cursor: pointer;
-  }
+    .timer-box {
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: #e7f1ff;
+      border-radius: 8px;
+      font-weight: bold;
+      color: #003366;
+      font-size: 18px;
+      padding: 10px;
+      margin-bottom: 20px;
+      display: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
 
-  button[type="submit"]:hover {
-    background: #e96c13;
-  }
-  .flash-message.success {
-  background: #28a745;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-.flash-message.error {
-  background: #dc3545;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
-</style>
+    button[type="submit"] {
+      background: #ff7f23;
+      border: none;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 15px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
 
- 
+    button[type="submit"]:hover {
+      background: #e96c13;
+    }
+
+    .flash-message.success {
+      background: #28a745;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    .flash-message.error {
+      background: #dc3545;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    /* 🔻 RESPONSIVE - mobil moslashtirish */
+    @media (max-width: 600px) {
+      body {
+        padding: 20px 10px;
+      }
+
+      .container {
+        padding: 0;
+      }
+
+      h2 {
+        font-size: 22px;
+        text-align: center;
+      }
+
+      label {
+        font-size: 14px;
+      }
+
+      input[type=number],
+      select,
+      textarea {
+        font-size: 14px;
+        padding: 8px;
+      }
+
+      .timer-box {
+        font-size: 16px;
+        padding: 8px;
+        text-align: center;
+      }
+
+      button[type="submit"] {
+        width: 100%;
+      }
+
+      .logout {
+        float: none;
+        display: block;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
 </head>
+
 <body>
  
   <div class="container">
