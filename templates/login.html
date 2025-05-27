@@ -1,156 +1,126 @@
-
 <!DOCTYPE html>
 <html lang="uz">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #fef4ee;
-      font-family: 'Segoe UI', sans-serif;
-    }
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  body {
+  margin: 0;
+  padding: 0;
+  background: #fef4ee;
+  font-family: 'Segoe UI', sans-serif;
+}
 
-    .login-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      padding: 20px;
-    }
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
-    .login-box {
-      background: #fff;
-      padding: 50px 35px 30px;
-      border-radius: 25px;
-      width: 100%;
-      max-width: 360px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      transition: all 0.3s ease;
-    }
+.login-box {
+  background: #fff;
+  padding: 50px 35px 30px;
+  border-radius: 25px;
+  width: 360px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  text-align: center;
+  transition: all 0.3s ease;
+}
 
-    .avatar-circle {
-      width: 90px;
-      height: 90px;
-      background: #f1f1f1;
-      border-radius: 50%;
-      margin: 0 auto 25px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 42px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
-    }
+.avatar-circle {
+  width: 90px;
+  height: 90px;
+  background: #f1f1f1;
+  border-radius: 50%;
+  margin: 0 auto 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 42px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+}
 
-    .login-box h2 {
-      margin-bottom: 25px;
-      color: #333;
-      font-size: 22px;
-      font-weight: 600;
-    }
+.login-box h2 {
+  margin-bottom: 25px;
+  color: #333;
+  font-size: 22px;
+  font-weight: 600;
+}
 
-    .login-box input {
-      width: 80%;
-      padding: 14px 20px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 40px;
-      font-size: 15px;
-      outline: none;
-      transition: 0.3s;
-      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
-    }
+.login-box input {
+  width: 80%;
+  padding: 14px 20px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 40px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
 
-    .login-box input:focus {
-      border-color: #007bff;
-      box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
-    }
+.login-box input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.4);
+}
 
-    .login-box button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 40px;
-      background: #ff7f23;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.login-box button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 40px;
+  background: #ff7f23;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
 
-    .login-box button:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 20px rgba(0, 114, 255, 0.2);
-    }
+.login-box button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 8px 20px rgba(0, 114, 255, 0.2);
+}
 
-    .forgot {
-      display: block;
-      margin-top: 18px;
-      font-size: 12.5px;
-      color: #888;
-      text-decoration: none;
-      transition: 0.2s ease;
-    }
+.forgot {
+  display: block;
+  margin-top: 18px;
+  font-size: 12.5px;
+  color: #888;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
 
-    .forgot:hover {
-      color: #333;
-      text-decoration: underline;
-    }
+.forgot:hover {
+  color: #333;
+  text-decoration: underline;
+}
+.flash-message {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+}
 
-    .flash-message {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 500;
-      text-align: center;
-    }
+.flash-message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
 
-    .flash-message.success {
-      background: #d4edda;
-      color: #155724;
-      border: 1px solid #c3e6cb;
-    }
+.flash-message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
 
-    .flash-message.error {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-    }
 
-    @media (max-width: 500px) {
-      .login-box {
-        padding: 35px 20px 25px;
-      }
-
-      .login-box h2 {
-        font-size: 20px;
-      }
-
-      .login-box input {
-        width: 100%;
-        font-size: 14px;
-        padding: 12px 15px;
-      }
-
-      .login-box button {
-        font-size: 15px;
-        padding: 12px;
-      }
-
-      .avatar-circle {
-        width: 75px;
-        height: 75px;
-        font-size: 36px;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
   <div class="login-wrapper">
