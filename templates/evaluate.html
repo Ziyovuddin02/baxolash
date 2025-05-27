@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>Baholash paneli</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+  
+  body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 40px 20px;
+    background: #f4f6f8;
+    color: #333;
+    display: flex;
+    justify-content: center;
+  }
+
+  .container {
+    max-width: 850px;
+    width: 100%;
+  }
+
+  h2 { font-size: 26px; margin-bottom: 10px; }
+
+  .logout {
+    float: right;
+    color: #ff7f23;
+    text-decoration: none;
+    font-weight: bold;
+  }
+
+  form {
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.05);
+    margin-bottom: 40px;
+  }
+
+  label {
+    margin-top: 20px;
+    font-weight: 500;
+    display: block;
+    font-size: 15px;
+  }
+
+  select, input[type=number], textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-top: 5px;
+    font-size: 15px;
+  }
+
+  .criteria-group {
+    margin-top: 20px;
+  }
+
+  .criteria-item {
+    margin-bottom: 15px;
+  }
+
+  .criteria-item label {
+    font-weight: 500;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .result-summary {
+    margin-top: 15px;
+    font-weight: bold;
+  }
+
+  .evaluations {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .evaluation-item {
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+  }
+
+  .timer-box {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: #e7f1ff;
+    border-radius: 8px;
+    font-weight: bold;
+    color: #003366;
+    font-size: 18px;
+    padding: 10px;
+    margin-bottom: 20px;
+    display: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  button[type="submit"] {
+    background: #ff7f23;
+    border: none;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 15px;
+    margin-top: 20px;
+    cursor: pointer;
+  }
+
+  button[type="submit"]:hover {
+    background: #e96c13;
+  }
+  .flash-message.success {
+  background: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+.flash-message.error {
+  background: #dc3545;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+</style>
+
+ 
+</head>
+<body>
+ 
+  <div class="container">
+    <a href="/logout" class="logout"><i class="fa fa-sign-out-alt"></i> Chiqish</a>
+    <h2>👨‍⚖ Komissiya baholash paneli</h2>
+
+   {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-messages">
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+
+    <div id="timerBox" class="timer-box">⏱ Qolgan vaqt: <span id="timer">07:00</span></div>
+      <form method="POST">
+        <label style="font-size: 25px; color: red; font-weight: 900; text-align: center;">📋 Xurmatli ustozlar talabalarni 6 ta mezon asosida shaffof va adolatli baxolashingizni so'raymiz!:</label>
+
+
+      <label>Guruh:</label>
+      <select id="groupSelect" required>
+        <option value="" disabled selected>Guruhni tanlang</option>
+        {% for g in groups %}
+          <option value="{{ g.id }}">{{ g.name }}</option>
+        {% endfor %}
+      </select>
+
+      <label>Nomzod:</label>
+      <select name="candidate_id" id="candidateSelect" required>
+        <option value="">Nomzod tanlang</option>
+        {% for c in candidates %}
+          <option value="{{ c.id }}" data-group="{{ c.group_id }}">{{ c.full_name }}</option>
+        {% endfor %}
+      </select>
+
+      <div class="criteria-group">
+      
+        <div class="criteria-item">
+          <label>1. Matn, dizayn, rasmiylashtirishga moslik:</label>
+          <input type="number" name="criterion1" min="0" max="10" required>
+        </div>
+
+        <div class="criteria-item">
+          <label>2. Muammolar aniqligi va takliflar mavjudligi:</label>
+          <input type="number" name="criterion2" min="0" max="10" required>
+        </div>
+
+        <div class="criteria-item">
+          <label>3. Innovatsion takliflar mavjudligi:</label>
+          <input type="number" name="criterion3" min="0" max="10" required>
+        </div>
+
+        <div class="criteria-item">
+          <label>4. Huquqiy hujjatlar va islohotlarga asoslanganlik:</label>
+          <input type="number" name="criterion4" min="0" max="10" required>
+        </div>
+
+        <div class="criteria-item">
+          <label>5. Maqsad va xulosa mosligi, asoslanganlik:</label>
+          <input type="number" name="criterion5" min="0" max="10" required>
+        </div>
+
+        <div class="criteria-item">
+          <label>6. AKT, mustaqillik va taqdimot sifati:</label>
+          <input type="number" name="criterion6" min="0" max="10" required>
+        </div>
+      </div>
+
+      <div class="result-summary">
+        Jami ball: <span id="total">0</span> / 60 <br>
+        Foiz: <span id="percent">0</span>%
+      </div>
+
+      <label>Izoh (ixtiyoriy):</label>
+      <textarea name="comment" rows="3" placeholder="Izoh yozish shart emas"></textarea>
+
+      <button type="submit">✅ Bahoni saqlash</button>
+    </form>
+
+    <div class="evaluations">
+      <h3>✅ Baholangan nomzodlar</h3>
+      {% for e in evaluations %}
+        <div class="evaluation-item">
+          <strong>{{ e.candidate.full_name }}</strong> — {{ e.score }} ball<br>
+          Izoh: {{ e.comment or "Izoh yo‘q" }}<br>
+          Sana: {{ e.evaluated_at.strftime('%Y-%m-%d') }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <script>
+  const inputs = document.querySelectorAll("input[type=number]");
+  const totalSpan = document.getElementById("total");
+  const percentSpan = document.getElementById("percent");
+
+  function calculateScore() {
+    let total = 0;
+    for (let input of inputs) {
+      let val = parseInt(input.value) || 0;
+      total += val;
+    }
+    totalSpan.innerText = total;
+    percentSpan.innerText = Math.round((total / 60) * 100);
+  }
+
+  for (let input of inputs) {
+    input.addEventListener("input", () => {
+      let val = parseInt(input.value);
+      if (val > 10) input.value = 10;
+      if (val < 0) input.value = 0;
+      calculateScore();
+    });
+  }
+
+  document.querySelector("form").addEventListener("submit", function (e) {
+    for (let input of inputs) {
+      let val = parseInt(input.value);
+      if (isNaN(val) || val < 0 || val > 10) {
+        alert("❌ Har bir mezon uchun ball 0 dan 10 gacha bo‘lishi kerak!");
+        e.preventDefault();
+        return false;
+      }
+    }
+  });
+
+  calculateScore(); // sahifa yuklanganda hisoblab chiqilsin
+</script>
+<script>
+  const groupSelect = document.getElementById("groupSelect");
+  const candidateSelect = document.getElementById("candidateSelect");
+  const allOptions = Array.from(candidateSelect.querySelectorAll("option"));
+
+  groupSelect.addEventListener("change", function () {
+    const selectedGroup = this.value;
+
+    candidateSelect.innerHTML = '<option value="">Nomzod tanlang</option>';
+
+    for (let opt of allOptions) {
+      if (opt.dataset.group === selectedGroup) {
+        candidateSelect.appendChild(opt);
+      }
+    }
+  });
+</script>
+<script>
+  setTimeout(() => {
+    const flashBox = document.getElementById('flash-messages');
+    if (flashBox) flashBox.remove();
+  }, 2000); // 3 soniyadan keyin yashiring
+</script>
+
+</body>
+</html>

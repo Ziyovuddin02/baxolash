@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #FFF4EA; }
+    .container { display: flex; }
+    .sidebar {
+      width: 200px; margin: 40px; height: 82vh; background: #fff; padding: 20px;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.05); border-radius: 20px;
+      display: flex; flex-direction: column; justify-content: space-between; position: sticky; top: 40px;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .logo-text { font-weight: bold; font-size: 18px; color: #333; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar ul li {
+      display: flex; align-items: center; gap: 15px; padding: 12px 15px; margin-bottom: 25px;
+      border-radius: 12px; color: #555; cursor: pointer; transition: 0.3s;
+    }
+    .sidebar ul li:hover, .sidebar ul li.active {
+      background: #ff7f23; color: #fff; font-weight: bold;
+    }
+    .sidebar ul li.active i { color: #fff; }
+    .logout {
+      margin-top: 30px; display: flex; align-items: center; gap: 10px;
+      color: #ff7f23; font-weight: 500; cursor: pointer;
+    }
+    .main-panel { flex: 1; padding: 30px; }
+    .section { display: none; }
+    .section.active { display: block; }
+    .stat-card {
+      flex: 1; padding: 30px; font-size: 22px; font-weight: bold;
+      color: black; text-align: center; border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1); margin: 10px; min-width: 220px;
+    }
+    .stats { display: flex; flex-wrap: wrap; gap: 20px; margin: 30px 0; }
+    .purple, .blue, .green, .red { background: linear-gradient(to right, white); }
+    .actions { margin: 20px 8px; }
+    .actions button {
+      background: #ff7f23; color: #fff; border: none;
+      padding: 28px 42px; margin-right: 10px; border-radius: 12px;
+      cursor: pointer; font-size: 18px; font-weight: bold;
+    }
+    .lists h3 { margin-top: 20px; font-size: 18px; color: #111; }
+    .lists ul { list-style: none; padding-left: 15px; }
+    .lists li { padding: 5px 0; color: #444; }
+
+    .modal {
+      display: none; position: fixed; z-index: 10;
+      left: 0; top: 0; width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.4);
+    }
+    .modal-content {
+      background: white; margin: 10% auto; padding: 30px;
+      width: 400px; border-radius: 12px; position: relative;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    }
+    .close {
+      position: absolute; top: 12px; right: 20px;
+      font-size: 24px; color: #888; cursor: pointer;
+    }
+    .modal-content input, .modal-content select, .modal-content button {
+      display: block; width: 100%; margin-bottom: 15px;
+      padding: 10px; border-radius: 8px; border: 1px solid #ccc;
+    }
+    .modal-content button {
+      background: #4a00e0; color: #fff;
+      border: none; font-weight: bold;
+    }
+    .link { color: #4a00e0; font-weight: 500; text-decoration: none; }
+    .link:hover { text-decoration: underline; }
+
+    .flash-message {
+      padding: 12px 18px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .flash-message.success { background-color: #28a745; }
+    .flash-message.error { background-color: #dc3545; }
+
+    .group-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .group-box {
+      
+      background: white; color: black;
+      padding: 15px 20px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 250px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: 0.3s;
+      width: 150px;
+    }
+
+    .group-box:hover {background: #ff7f23; color: #fff;  }
+
+    .group-header {
+      font-weight: bold;
+      cursor: pointer;
+      flex: 1;
+    }
+    .delete-btn:hover{color: white;}
+    .delete-btn {
+      background: none;
+      border: none;
+      color: red;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .group-content {
+      display: none;
+      margin: 10px 0 0 10px;
+      width: 100%;
+    }
+    .group-box.active {
+  background: #ff7f23;
+  color: white;
+  font-weight: bold;
+}
+
+  </style>
+</head>
+<body>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div id="flash-box" style="position: fixed; top: 20px; right: 20px; z-index: 9999;">
+      {% for category, message in messages %}
+        <div class="flash-message {{ category }}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => {
+        const box = document.getElementById('flash-box');
+        if (box) box.remove();
+      }, 3000);
+    </script>
+  {% endif %}
+  {% endwith %}
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo">
+        <span class="logo-text" style="font-size: 30px;text-align: center; font-weight: 900;">Admin panel</span>
+      </div>
+      <ul>
+        <li class="active" onclick="showSection('dashboard')"><i class="fa fa-home"></i> <span>Dashboard</span></li>
+        <li onclick="showSection('nomzodlar')"><i class="fa fa-user-graduate"></i> <span>Talabalar</span></li>
+        <li onclick="showSection('komissiya')"><i class="fa fa-scale-balanced"></i> <span>Xay’at</span></li>
+        <li onclick="showSection('hisobot')"><i class="fa fa-file-export"></i> <span>Hisobotlar</span></li>
+      </ul>
+      <div class="logout" onclick="location.href='/logout'">
+        <i class="fa fa-arrow-rotate-left"></i> <span>Chiqish</span>
+      </div>
+    </aside>
+
+    <main class="main-panel">
+      <section class="section active" id="dashboard">
+        <div class="stats">
+          <div class="stat-card purple">👥 {{ total_candidates }} ta Talaba</div>
+          <div class="stat-card blue">⚖️ {{ total_commissions }} ta Komissiya</div>
+          <div class="stat-card green">✅ {{ evaluated_count }} ta Baholangan</div>
+          <div class="stat-card red">❌ {{ unevaluated_count }} ta Baholanmagan</div>
+        </div>
+        <div style="width: 100%; max-width: 700px; margin: 30px auto;">
+  <canvas id="barChart" height="120"></canvas>
+</div>
+
+        <div class="actions">
+          <button onclick="openModal('add-student')">🎓 Talaba qo‘shish</button>
+          <button onclick="openModal('upload-excel')">📥 Excel orqali qo‘shish</button>
+          <button onclick="openModal('add-commission')">👨‍⚖ Komissiya qo‘shish</button>
+          <button onclick="openModal('add-group')">📚 Guruh qo‘shish</button>
+        </div>
+      </section>
+
+    <section class="section" id="nomzodlar">
+  <div class="group-list">
+  {% for group in groups %}
+    <div class="group-box" id="group-box-{{ group.id }}" onclick="toggleGroup('{{ group.id }}')">
+      <div class="group-header">📘 {{ group.name }}</div>
+      <form onsubmit="return deleteGroup('{{ group.id }}', this)">
+        <button type="submit" class="delete-btn">🗑</button>
+      </form>
+    </div>
+  {% endfor %}
+</div>
+
+<!-- ❗ Jadvalni alohida pastda ko‘rsatamiz -->
+{% for group in groups %}
+  <div id="group-{{ group.id }}" class="group-content" style="display: none;">
+    <table border="1" cellpadding="8" cellspacing="0" style="margin-top:10px; width:100%; border-collapse:collapse;">
+      <thead style="background:#eee;">
+        <tr>
+          <th>T/R</th>
+          <th>F.I.Sh.</th>
+          <th>Mavzusi</th>
+          <th>Bahosi</th>
+          <th>Amal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in group.candidates %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ c.full_name }}</td>
+          <td>{{ c.topic }}</td>
+          <td>
+            {% if avg_scores[c.id] is not none %}
+              {{ avg_scores[c.id] }}%
+            {% else %}
+              <em>Baholanmagan</em>
+            {% endif %}
+          </td>
+          <td>
+            <form onsubmit="return deleteCandidate('{{ c.id }}', this)">
+              <button type="submit" style="color:red; background:none; border:none; cursor:pointer;">🗑 O‘chirish</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endfor %}
+
+</section>
+
+    <section class="section" id="komissiya">
+  <div class="lists">
+    <h3>👨‍⚖ Suhbatni tashkil qiluvchi komissiya a'zolari ro'yhati</h3>
+    <table border="1" cellpadding="8" cellspacing="0" style="width:100%; border-collapse:collapse; margin-top:10px;">
+      <thead style="background:#eee;">
+        <tr>
+          <th>Ism</th>
+          <th>Login</th>
+          <th>Parol</th>
+          <th>Amal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in commissions %}
+        <tr>
+          <td>{{ u.name }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.password }}</td>
+          <td>
+            <form onsubmit="return deleteCommission('{{ u.id }}', this)">
+              <button type="submit" style="color:red; background:none; border:none; cursor:pointer;">🗑 O‘chirish</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+<script>
+  function deleteCommission(id, form) {
+    if (!confirm("Komissiyani o‘chirmoqchimisiz?")) return false;
+
+    fetch('/delete_commission', {
+      method: 'POST',
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `commission_id=${id}`
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        form.closest('tr').remove();
+        showFlashMessage("✅ Komissiya o‘chirildi", "success");
+      } else {
+        showFlashMessage("❌ " + data.message, "error");
+      }
+    })
+    .catch(err => {
+      showFlashMessage("❌ Server xatosi", "error");
+      console.error(err);
+    });
+
+    return false;
+  }
+</script>
+
+
+     <section class="section" id="hisobot">
+  <div class="lists">
+    <h3>📁 Talabalarni suhbat natijalarini yuklab olish bo'limi</h3>
+    {% for g in groups %}
+      <div style="background: #f6f6f6; padding: 12px 20px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+        <strong>📘 {{ g.name }}</strong>
+        <span>
+          <a href="/export/excel?group_id={{ g.id }}" class="link">⬇ Excel</a> |
+          <a href="/export/pdf?group_id={{ g.id }}" class="link">⬇ PDF</a>
+        </span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+    </main>
+  </div>
+
+<!-- MODAL: NOMZOD QO‘SHISH -->
+<div class="modal" id="add-student">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('add-student')">&times;</span>
+    <h3>🎓 Nomzod qo‘shish</h3>
+    <form method="POST">
+      <input type="hidden" name="add_candidate">
+      <input type="text" name="lastname" placeholder="Familya" required>
+      <input type="text" name="firstname" placeholder="Ism" required>
+      <select name="group_id" required>
+        <option disabled selected>Guruhni tanlang</option>
+        {% for g in groups %}
+          <option value="{{ g.id }}">{{ g.name }}</option>
+        {% endfor %}
+      </select>
+      <input type="text" name="topic" placeholder="Mavzusi" required>
+      <button type="submit">Qo‘shish</button>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="upload-excel">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('upload-excel')">&times;</span>
+    <h3>📥 Excel orqali yuklash</h3>
+    <form action="/upload_excel" method="POST" enctype="multipart/form-data">
+      <input type="file" name="excel_file" accept=".xlsx, .xls" required>
+      <button type="submit">Yuklash</button>
+    </form>
+  </div>
+</div>
+
+
+<!-- MODAL: KOMISSIYA QO‘SHISH -->
+<div class="modal" id="add-commission">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('add-commission')">&times;</span>
+    <h3>👨‍⚖ Komissiya qo‘shish</h3>
+    <form method="POST">
+      <input type="hidden" name="add_commission">
+      <input type="text" name="name" placeholder="Ismi" required>
+      <input type="text" name="username" placeholder="Login" required>
+      <input type="password" name="password" placeholder="Parol" required>
+      <button type="submit">Qo‘shish</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: GURUH QO‘SHISH -->
+<div class="modal" id="add-group">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal('add-group')">&times;</span>
+    <h3>📚 Guruh qo‘shish</h3>
+    <form method="POST">
+      <input type="hidden" name="add_group">
+      <input type="text" name="group_name" placeholder="Guruh nomi" required>
+      <button type="submit">Qo‘shish</button>
+    </form>
+  </div>
+</div>
+<script>
+  function deleteGroup(groupId, formElement) {
+    if (!confirm("Ushbu guruh va barcha talabalarni o‘chirishni istaysizmi?")) return false;
+
+    fetch("/delete_group", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `group_id=${groupId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('group-box-' + groupId).remove();
+        document.getElementById('group-' + groupId).remove();
+        showFlashMessage("✅ Guruh va talabalar o‘chirildi", "success");
+      } else {
+        showFlashMessage("❌ " + data.message, "error");
+      }
+    })
+    .catch(error => {
+      showFlashMessage("❌ Server xatosi", "error");
+      console.error(error);
+    });
+
+    return false;
+  }
+
+  function deleteCandidate(candidateId, formElement) {
+    if (!confirm("Talabani o‘chirishni istaysizmi?")) return false;
+
+    fetch("/delete_candidate", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `candidate_id=${candidateId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        formElement.closest('tr').remove();
+        showFlashMessage("✅ Talaba o‘chirildi", "success");
+      } else {
+        showFlashMessage("❌ " + data.message, "error");
+      }
+    })
+    .catch(error => {
+      showFlashMessage("❌ Server xatosi", "error");
+      console.error(error);
+    });
+
+    return false;
+  }
+
+  function showFlashMessage(message, type) {
+    const box = document.createElement('div');
+    box.textContent = message;
+    box.style.position = 'fixed';
+    box.style.top = '20px';
+    box.style.right = '20px';
+    box.style.padding = '10px 20px';
+    box.style.color = 'white';
+    box.style.fontWeight = 'bold';
+    box.style.borderRadius = '8px';
+    box.style.zIndex = 9999;
+    box.style.background = (type === 'success') ? '#28a745' : '#dc3545';
+    document.body.appendChild(box);
+    setTimeout(() => box.remove(), 3000);
+  }
+</script>
+<script>
+  function showSection(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function openModal(id) {
+    document.getElementById(id).style.display = 'block';
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).style.display = 'none';
+  }
+
+  window.onclick = function(e) {
+    document.querySelectorAll('.modal').forEach(modal => {
+      if (e.target === modal) modal.style.display = "none";
+    });
+  }
+// ✅ YANGI toggleGroup FUNKSIYASI:
+function toggleGroup(id) {
+  // Barcha ochilgan guruhlarni yopamiz
+  document.querySelectorAll('.group-content').forEach(el => el.style.display = 'none');
+
+  // Barcha guruhlardan active klassini olib tashlaymiz
+  document.querySelectorAll('.group-box').forEach(box => box.classList.remove('active'));
+
+  // Bosilgan guruhni faollashtiramiz
+  document.getElementById('group-' + id).style.display = 'block';
+  document.getElementById('group-box-' + id).classList.add('active');
+}
+
+    
+  // URL orqali avtomatik ochish (masalan: ?open_group_id=1)
+  window.onload = function () {
+    const params = new URLSearchParams(window.location.search);
+    const groupId = params.get("open_group_id");
+    if (groupId) {
+      toggleGroup(groupId);
+    }
+  };
+</script>
+<div id="loading-message" style="display:none; position:fixed; top:30px; left:50%; transform:translateX(-50%);
+  background:#4a00e0; color:white; padding:10px 20px; border-radius:8px; font-weight:bold; z-index:10000;">
+  ⏳ Hujjat yuklab olinmoqda...
+</div>
+
+<script>
+  document.querySelectorAll('a[href^="/export"]').forEach(link => {
+    link.addEventListener('click', () => {
+      const msg = document.getElementById('loading-message');
+      msg.style.display = 'block';
+      setTimeout(() => msg.style.display = 'none', 5000); // 5 sekund ko‘rsatadi
+    });
+  });
+</script>
+<script>
+  function showSection(id) {
+    // 1. Barcha section'ni yashirish
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+    // 2. Faqat tanlangan bo‘limni ko‘rsatish
+    document.getElementById(id).classList.add('active');
+
+    // 3. Barcha menyudan 'active' klassni olib tashlash
+    document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
+
+    // 4. Joriy bo‘limga mos menyuga 'active' klassini qo‘shish
+    const menuItems = {
+      'dashboard': 0,
+      'nomzodlar': 1,
+      'komissiya': 2,
+      'hisobot': 3
+    };
+    const index = menuItems[id];
+    const menu = document.querySelectorAll('.sidebar ul li')[index];
+    if (menu) menu.classList.add('active');
+  }
+</script>
+<script>
+const ctxBar = document.getElementById('barChart').getContext('2d');
+
+new Chart(ctxBar, {
+  type: 'bar',
+  data: {
+    labels: ['Talabalar', 'Komissiya', 'Baholangan', 'Baholanmagan'],
+    datasets: [{
+      label: 'Umumiy statistika',
+      data: [{{ total_candidates }}, {{ total_commissions }}, {{ evaluated_count }}, {{ unevaluated_count }}],
+      backgroundColor: ['#007bff', '#ffc107', '#28a745', '#dc3545'],
+      borderRadius: 8,
+      barThickness: 40
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+      tooltip: {
+        enabled: true
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
