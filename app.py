@@ -363,14 +363,21 @@ def export_pdf():
 
     # Ma’lumotlarni tayyorlash
     candidate_list = []
+    commission_ids = set()
+
     for cand in candidates:
         ev = Evaluation.query.filter_by(candidate_id=cand.id).first()
+        if ev:
+            commission_ids.add(ev.commission_id)
         candidate_list.append({
             "full_name": cand.full_name,
             "score": ev.score if ev else None
         })
 
-    qr_url = f"http://127.0.0.1:5000/static/reports/{group.name}.pdf"
+    # Baholagan komissiyalarni olish
+    commission_members = User.query.filter(User.id.in_(commission_ids)).all()
+
+    qr_url = f"https://baxolash-production.up.railway.app/static/reports/{group.name}.pdf"
     output_path = f"static/reports/{group.name}.pdf"
 
     buffer = io.BytesIO()
@@ -381,7 +388,6 @@ def export_pdf():
     title_style = ParagraphStyle('Title', fontName='Times-Bold', fontSize=14, alignment=TA_CENTER, leading=18)
     subtitle_style = ParagraphStyle('Subtitle', fontName='Times-Roman', fontSize=12, alignment=TA_CENTER, leading=16)
     normal_left = ParagraphStyle('Left', fontName='Times-Roman', fontSize=12, alignment=TA_LEFT)
-    normal_bold = ParagraphStyle('BoldLeft', fontName='Times-Bold', fontSize=12, alignment=TA_LEFT)
 
     # Sarlavhalar
     elements.append(Paragraph("TOSHKENT VILOYATI PEDAGOGIK MAHORAT MARKAZI", title_style))
@@ -414,12 +420,15 @@ def export_pdf():
     elements.append(table)
     elements.append(Spacer(1, 40))
 
-    # Komissiya a’zolari va imzo qatori
-    komis_table = Table([
-        [Paragraph("Komissiya raisi <b>T. Ortiqov</b>", normal_left), "___________________"],
-        [Paragraph("Komissiya a’zosi <b>X. Bo‘ronboyev</b>", normal_left), "___________________"],
-        [Paragraph("Komissiya a’zosi <b>D. Aripova</b>", normal_left), "___________________"]
-    ], colWidths=[100*mm, 70*mm])
+    # ✅ Dinamik komissiya ismlari bilan
+    komis_table_data = []
+    for member in commission_members:
+        komis_table_data.append([
+            Paragraph(f"Komissiya a’zosi <b>{member.name}</b>", normal_left),
+            "___________________"
+        ])
+
+    komis_table = Table(komis_table_data, colWidths=[100*mm, 70*mm])
     komis_table.setStyle(TableStyle([
         ('FONTNAME', (0, 0), (-1, -1), 'Times-Roman'),
         ('FONTSIZE', (0, 0), (-1, -1), 12),
@@ -429,6 +438,27 @@ def export_pdf():
     ]))
     elements.append(komis_table)
     elements.append(Spacer(1, 20))
+
+    # QR kod
+    qr_img = qrcode.make(qr_url)
+    qr_io = io.BytesIO()
+    qr_img.save(qr_io, format='PNG')
+    qr_io.seek(0)
+    elements.append(Image(qr_io, width=80, height=80))
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "wb") as f:
+        f.write(buffer.read())
+
+    buffer.seek(0)
+    return send_file(buffer, download_name="hisobot.pdf", as_attachment=True)
+
+
+    
+    
 
     # QR kod
     qr_img = qrcode.make(qr_url)
